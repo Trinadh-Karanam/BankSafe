@@ -10,13 +10,6 @@ type Employee = {
   status: "Pending" | "Approved";
 };
 
-// 2. Type the initial employee data
-const initialEmployees: Employee[] = [
-  { id: 1, name: "Rahul", role: "Developer", status: "Pending" },
-  { id: 2, name: "Priya", role: "Tester", status: "Approved" },
-  { id: 3, name: "Amit", role: "Analyst", status: "Pending" },
-];
-
 // 3. Define the props accepted by EmployeeCard
 type EmployeeCardProps = {
   employee: Employee;
@@ -25,9 +18,6 @@ type EmployeeCardProps = {
 
 function EmployeeCard({ employee, onApprove }: EmployeeCardProps) {
 
-//   useEffect(() => {
-//   console.log("Employees page opened");
-// }, []);
   return (
     <article className="employee-card">
       <div>
@@ -53,10 +43,44 @@ function EmployeeCard({ employee, onApprove }: EmployeeCardProps) {
 
 
 function EmployeesPage() {
-  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchText, setSearchText] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(""); 
   const [newName, setNewName] = useState("");
   const [newRole, setNewRole] = useState("");
+
+
+  
+useEffect(() => {
+  async function fetchEmployees() {
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/employees"
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch employees");
+      }
+
+      const data = await response.json();
+
+      setEmployees(
+        data.map((employee: { id: number; name: string; role: string }) => ({
+          ...employee,
+          status: "Pending" as const,
+        }))
+      );
+    } catch {
+      setError("Unable to load employees. Check the backend server.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  fetchEmployees();
+}, []);
+
 
   function approveEmployee(employeeId: number): void {
     setEmployees((wantToChangeEmployees) =>
@@ -150,6 +174,11 @@ function EmployeesPage() {
 
           <button type="submit">Add Employee</button>
         </form>
+        {loading && <p>Loading employees...</p>}
+
+        {error && <p>{error}</p>}
+
+        {!loading && !error && (
 
         <div className="employee-list">
           {filteredEmployees.length > 0 ? (
@@ -164,6 +193,7 @@ function EmployeesPage() {
             <p className="empty-message">No employees found.</p>
           )}
         </div>
+        )}
       </section>
 
       <p className="learning-note">
