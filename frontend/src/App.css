@@ -199,3 +199,26 @@ button:disabled {
     flex-wrap: wrap;
   }
 }
+
+
+.employee-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.employee-form h2 {
+  width: 100%;
+}
+
+.employee-form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.employee-form button {
+  padding: 10px 16px;
+  cursor: pointer;
+}
