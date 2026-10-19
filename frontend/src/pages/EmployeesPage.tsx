@@ -1,30 +1,14 @@
-
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import "../App.css";
+import type { Employee, EmployeeCardProps } from "./types";
 
-// 1. Define the structure of an employee
-type Employee = {
-  id: number;
-  name: string;
-  role: string;
-  status: "Pending" | "Approved";
-};
-
-// 3. Define the props accepted by EmployeeCard
-type EmployeeCardProps = {
-  employee: Employee;
-  onApprove: (employeeId: number) => void;
-};
-
-function EmployeeCard({ employee, onApprove }: EmployeeCardProps) {
-
+function EmployeeCard({ employee, onApprove, onDelete }: EmployeeCardProps) {
   return (
     <article className="employee-card">
       <div>
         <h3>{employee.name}</h3>
         <p className="employee-role">{employee.role}</p>
       </div>
-
       <div className="employee-actions">
         <span className={`status status-${employee.status.toUpperCase()}`}>
           {employee.status}
@@ -34,7 +18,12 @@ function EmployeeCard({ employee, onApprove }: EmployeeCardProps) {
           onClick={() => onApprove(employee.id)}
           disabled={employee.status === "Approved"}
         >
-          {employee.status === "Approved" ? "Approved" : "Pending"}
+          {employee.status === "Pending" ? "Approve" : "Approved"}
+        </button>
+        <button
+          onClick={() => onDelete(employee.id)}
+        >
+        Delete
         </button>
       </div>
     </article>
@@ -46,79 +35,141 @@ function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchText, setSearchText] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(""); 
+  const [error, setError] = useState("");
   const [newName, setNewName] = useState("");
   const [newRole, setNewRole] = useState("");
 
+  useEffect(() => {
+    console.log("Employees page opened");
+  }, []);
 
-  
-useEffect(() => {
-  async function fetchEmployees() {
+  useEffect(() => {
+    async function fetchEmployees() {
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/employees"
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch employees");
+        }
+
+        const data = await response.json();
+
+        setEmployees(data)
+      } catch {
+        setError("Unable to load employees. Check the backend server.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchEmployees();
+  }, []);
+
+  async function approveEmployee(employeeId: number): Promise<void> {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/employees"
+        `http://localhost:5000/api/employees/${employeeId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: "Approved" }),
+        }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch employees");
+        throw new Error("Failed to approve employee");
       }
 
-      const data = await response.json();
+      const updatedEmployee = await response.json();
 
-      setEmployees(
-        data.map((employee: { id: number; name: string; role: string }) => ({
-          ...employee,
-          status: "Pending" as const,
-        }))
+      setEmployees((currentEmployees) =>
+        currentEmployees.map((employee) =>
+          employee.id === employeeId
+            ? updatedEmployee
+            : employee
+        )
       );
+
+      setError("");
     } catch {
-      setError("Unable to load employees. Check the backend server.");
-    } finally {
-      setLoading(false);
+      setError("Unable to approve employee. Please try again.");
     }
   }
 
-  fetchEmployees();
-}, []);
-
-
-  function approveEmployee(employeeId: number): void {
-    setEmployees((wantToChangeEmployees) =>
-      wantToChangeEmployees.map((updatedEmployee) =>
-        updatedEmployee.id === employeeId
-          ? { ...updatedEmployee, status: "Approved" }
-          : updatedEmployee
-      )
-    );
-  }
 
 
   const filteredEmployees = employees.filter((employee) =>
-    employee.name.toLowerCase().includes(searchText.toLowerCase()) || 
+    employee.name.toLowerCase().includes(searchText.toLowerCase()) ||
     employee.role.toLowerCase().includes(searchText.toLocaleLowerCase())
   );
 
-  function addEmployee(event: React.FormEvent<HTMLFormElement>): void {
+  async function addEmployee(
+    event: React.FormEvent<HTMLFormElement>
+  ): Promise<void> {
     event.preventDefault();
 
-    const employee: Employee = {
-      id: Math.max(0, ...employees.map((item) => item.id)) + 1,
-      name: newName.trim(),
-      role: newRole.trim(),
-      status: "Pending",
-    };
+    if (!newName.trim() || !newRole.trim()) return;
 
-    if (!employee.name || !employee.role) return;
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/employees",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: newName.trim(),
+            role: newRole.trim(),
+          }),
+        }
+      );
 
-    setEmployees((current) => [...current, employee]);
+      if (!response.ok) {
+        throw new Error("Failed to add employee");
+      }
 
-    setNewName("");
-    setNewRole("");
+      const createdEmployee = await response.json();
+
+      setEmployees((current) => [
+        ...current,
+        { ...createdEmployee, status: "Pending" as const },
+      ]);
+
+      setNewName("");
+      setNewRole("");
+      setError("");
+    } catch {
+      setError("Unable to add employee. Please try again.");
+    }
   }
 
-  useEffect(() => {
-  console.log("Employees page opened");
-}, []);
+  async function deleteEmployee(employeeId: number): Promise<void> {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/employees/${employeeId}`,
+        { method: "DELETE" }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete employee");
+      }
+
+      setEmployees((currentEmployees) =>
+        currentEmployees.filter(
+          (employee) => employee.id !== employeeId
+        )
+      );
+
+      setError("");
+    } catch {
+      setError("Unable to delete employee. Please try again.");
+    }
+  }
+
 
   return (
     <main className="app-shell">
@@ -170,6 +221,7 @@ useEffect(() => {
             value={newRole}
             onChange={(event) => setNewRole(event.target.value)}
             required
+            pattern="[A-Za-z ]*"
           />
 
           <button type="submit">Add Employee</button>
@@ -180,19 +232,20 @@ useEffect(() => {
 
         {!loading && !error && (
 
-        <div className="employee-list">
-          {filteredEmployees.length > 0 ? (
-            filteredEmployees.map((employee) => (
-              <EmployeeCard
-                key={employee.id}
-                employee={employee}
-                onApprove={approveEmployee}
-              />
-            ))
-          ) : (
-            <p className="empty-message">No employees found.</p>
-          )}
-        </div>
+          <div className="employee-list">
+            {filteredEmployees.length > 0 ? (
+              filteredEmployees.map((employee) => (
+                <EmployeeCard
+                  key={employee.id}
+                  employee={employee}
+                  onApprove={approveEmployee}
+                  onDelete={deleteEmployee}
+                />
+              ))
+            ) : (
+              <p className="empty-message">No employees found.</p>
+            )}
+          </div>
         )}
       </section>
 
