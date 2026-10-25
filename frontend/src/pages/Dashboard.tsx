@@ -6,10 +6,10 @@ function DashboardPage() {
     <main className="app-shell">
       <header className="page-header">
         <div>
-          <p className="eyebrow">EMPLOYEE PORTAL</p>
+          <p className="eyebrow">Bank and Secure</p>
           <h1>Dashboard</h1>
           <p className="subtitle">
-            Welcome to your Employee Portal.
+            Welcome to your Bank safe.
           </p>
         </div>
       </header>

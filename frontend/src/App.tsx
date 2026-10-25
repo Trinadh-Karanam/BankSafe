@@ -12,7 +12,6 @@ function App() {
         {" | "}
         <NavLink to="/employees">Employees</NavLink>
       </nav>
-
       <Routes>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/employees" element={<EmployeesPage />} />
