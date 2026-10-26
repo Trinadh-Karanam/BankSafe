@@ -1,9 +1,6 @@
 
 import { Router } from "express";
-import {
-  createLoan,
-  getLoans,
-} from "../controllers/loanController";
+import { createLoan, getLoans } from "../controllers/loanController";
 
 const router = Router();
 

@@ -1,4 +1,8 @@
-import {loanEventEmitter} from "../events/loanEvents";
+
+import { ResultSetHeader, RowDataPacket } from "mysql2";
+import { pool } from "../config/database";
+import { loanEventEmitter } from "../events/loanEvents";
+
 export interface Loan {
   id: string;
   applicantName: string;
@@ -11,30 +15,51 @@ export interface CreateLoanInput {
   amount: number;
 }
 
-// Temporary in-memory storage
-const loans: Loan[] = [];
+interface LoanRow extends RowDataPacket {
+  id: number;
+  applicantName: string;
+  amount: number | string;
+  status: Loan["status"];
+}
 
-export const createLoanThroughCntrler = (
+export const createLoanThroughCntrler = async (
   input: CreateLoanInput
-): Loan => {
+): Promise<Loan> => {
+  const applicantName = input.applicantName.trim();
+
+  const [result] = await pool.execute<ResultSetHeader>(
+    `INSERT INTO loans (applicant_name, amount)
+     VALUES (?, ?)`,
+    [applicantName, input.amount]
+  );
+
   const loan: Loan = {
-    id: "yet-to-be-generated-id", // uuid generation can be added later
-    applicantName: input.applicantName.trim(),
+    id: String(result.insertId),
+    applicantName,
     amount: input.amount,
     status: "PENDING",
   };
 
-  loans.push(loan);
-
   loanEventEmitter.emit("LoanSubmitted", {
-  loanId: loan.id,
-  applicantName: loan.applicantName,
-  amount: loan.amount,
-});
+    loanId: loan.id,
+    applicantName: loan.applicantName,
+    amount: loan.amount,
+  });
 
   return loan;
 };
 
-export const getAllLoans = (): Loan[] => {
-  return [...loans];
+export const getAllLoans = async (): Promise<Loan[]> => {
+  const [rows] = await pool.execute<LoanRow[]>(
+    `SELECT id, applicant_name AS applicantName, amount, status
+     FROM loans
+     ORDER BY id DESC`
+  );
+
+  return rows.map((row) => ({
+    id: String(row.id),
+    applicantName: row.applicantName,
+    amount: Number(row.amount),
+    status: row.status,
+  }));
 };
