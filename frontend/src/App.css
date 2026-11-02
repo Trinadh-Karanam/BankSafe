@@ -222,3 +222,43 @@ button:disabled {
   padding: 10px 16px;
   cursor: pointer;
 }
+
+
+.loan-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 450px;
+}
+
+.loan-form input {
+  padding: 12px;
+  border: 1px solid #d0d5dd;
+  border-radius: 9px;
+}
+
+.loan-form label {
+  font-weight: 600;
+}
+
+.success-message {
+  color: #15803d;
+  background: #dcfce7;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.error-message {
+  color: #b91c1c;
+  background: #fee2e2;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.response-card {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+}

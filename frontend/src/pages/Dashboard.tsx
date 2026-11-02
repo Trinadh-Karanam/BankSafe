@@ -18,6 +18,8 @@ function DashboardPage() {
         <h2>Quick Access</h2>
         <p>Manage employee records and approval statuses.</p>
         <Link to="/employees">View Employees</Link>
+        <br />
+        <Link to="/loans">Submit Loan</Link>  
       </section>
     </main>
   );

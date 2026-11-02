@@ -3,6 +3,7 @@ import express, { Request, Response } from "express";
 import loanRoutes from "./routes/loanRoutes";
 import { errorHandler } from "./middleware/errorHandler";
 import "./events/loanEventListener";
+import cors from "cors";
 
 const app = express();
 
@@ -18,6 +19,14 @@ app.use((req: Request, res: Response, next) => {
   console.log(`${req.method} ${req.url}`);
   next();
 });
+
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 app.use("/api/loans", loanRoutes);
 
