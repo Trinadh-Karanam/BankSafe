@@ -1,5 +1,6 @@
 
 import { LoanSubmittedEvent } from "../events/loanEvents";
+import { saveCreditCheck } from "../repositories/creditCheckRepository";
 
 const delay = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -67,6 +68,19 @@ export const startCreditCheck = async (
     console.log("Credit API request succeeded");
     console.log("Loan ID:", loan.loanId);
     console.log("Test API response:", data);
+
+    const creditCheckResult = {
+      loanId: loan.loanId,
+      status: "CREDIT CHECK COMPLETED",
+      responseData: JSON.stringify(data),
+    };
+    
+    console.log("Credit check result:", creditCheckResult);
+
+    await saveCreditCheck(creditCheckResult);
+
+  console.log("Credit-check result stored in MySQL");
+
   } catch (error: unknown) {
     console.error("Credit check failed:", error);
   }

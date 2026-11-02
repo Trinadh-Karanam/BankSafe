@@ -2,6 +2,7 @@ import "dotenv/config";
 import express, { Request, Response } from "express";
 import loanRoutes from "./routes/loanRoutes";
 import { errorHandler } from "./middleware/errorHandler";
+import "./events/loanEventListener";
 
 const app = express();
 

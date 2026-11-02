@@ -45,7 +45,6 @@ export const createLoanThroughCntrler = async (
     applicantName: loan.applicantName,
     amount: loan.amount,
   });
-
   return loan;
 };
 
