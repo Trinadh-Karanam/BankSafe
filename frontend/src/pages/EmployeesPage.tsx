@@ -13,7 +13,7 @@ function EmployeeCard({ employee, onApprove, onDelete }: EmployeeCardProps) {
         <span className={`status status-${employee.status.toUpperCase()}`}>
           {employee.status}
         </span>
-
+        
         <button
           onClick={() => onApprove(employee.id)}
           disabled={employee.status === "Approved"}

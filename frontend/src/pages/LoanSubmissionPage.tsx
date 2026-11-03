@@ -13,6 +13,23 @@ function LoanSubmissionPage() {
     ): Promise<void> {
         event.preventDefault();
 
+        if (!applicantName.trim()) {
+            setErrorMessage("Applicant name is required");
+            return;
+        }
+
+        if (!/^[A-Za-z ]{2,50}$/.test(applicantName.trim())) {
+            setErrorMessage("Enter a valid applicant name");
+            return;
+        }
+
+        const loanAmount = Number(amount);
+
+        if (!amount || !Number.isSafeInteger(loanAmount) || loanAmount <= 0) {
+            setErrorMessage("Enter a valid loan amount greater than zero");
+            return;
+        }
+
         setLoading(true);
         setSuccessMessage("");
         setErrorMessage("");
@@ -27,8 +44,8 @@ function LoanSubmissionPage() {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        applicantName,
-                        amount: Number(amount),
+                        applicantName: applicantName.trim(),
+                        amount: Number(amount)
                     }),
                 }
             );
