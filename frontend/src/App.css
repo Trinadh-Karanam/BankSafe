@@ -1,6 +1,6 @@
 .app-shell {
-  width: min(920px, calc(100% - 32px));
-  margin: 48px auto;
+  width: min(1000px, calc(100% - 32px));
+  margin: 50px auto;
 }
 
 .page-header {
@@ -14,8 +14,8 @@
 .eyebrow {
   margin: 0 0 8px;
   color: #5366d8;
-  font-size: 0.76rem;
-  font-weight: 800;
+  font-size: 0.9rem;
+  font-weight: 900;
   letter-spacing: 0.12em;
 }
 
@@ -35,7 +35,7 @@ h1 {
 .subtitle,
 .section-heading p,
 .employee-role {
-  color: #667085;
+  color: #3f495d;
 }
 
 .subtitle {
@@ -130,7 +130,7 @@ h1 {
   padding: 6px 10px;
   border-radius: 999px;
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .status-pending {

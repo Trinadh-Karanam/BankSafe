@@ -16,10 +16,16 @@ function DashboardPage() {
 
       <section className="panel">
         <h2>Quick Access</h2>
-        <p>Manage employee records and approval statuses.</p>
-        <Link to="/employees">View Employees</Link>
-        <br />
-        <Link to="/loans">Submit Loan</Link>  
+       <section className="panel">
+        <h3>User access Management</h3>
+        <Link to="/employees">View All Employees</Link>
+        <br></br>
+        <Link to="/employees">Add Employee</Link> </section>
+        <br></br>
+        <section className="panel">
+           <Link to="/loans">Submit Loan</Link>  
+        </section>
+       
       </section>
     </main>
   );

@@ -175,11 +175,7 @@ function EmployeesPage() {
     <main className="app-shell">
       <header className="page-header">
         <div>
-          <p className="eyebrow">REACT PRACTICE PROJECT</p>
           <h1>Employee Portal</h1>
-          <p className="subtitle">
-            Learn React step by step by building a real-world style interface.
-          </p>
         </div>
 
         <div className="summary-card">
@@ -248,11 +244,6 @@ function EmployeesPage() {
           </div>
         )}
       </section>
-
-      <p className="learning-note">
-        Practice tip: Try changing the employee data, search behavior, and
-        approval logic after you understand how the code works.
-      </p>
     </main>
   );
 }

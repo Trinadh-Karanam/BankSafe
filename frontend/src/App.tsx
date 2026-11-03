@@ -10,10 +10,6 @@ function App() {
     <BrowserRouter>
       <nav className="panel">
         <NavLink to="/">Dashboard</NavLink>
-        {" | "}
-        <NavLink to="/employees">Employees</NavLink>
-        {" | "}
-        <NavLink to="/loans">Submit Loan</NavLink>
       </nav>
       <Routes>
         <Route path="/" element={<DashboardPage />} />
