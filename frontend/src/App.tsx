@@ -1,7 +1,7 @@
 
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import DashboardPage from "./pages/Dashboard";
-import EmployeesPage from "./pages/EmployeesPage";
+import EmployeesPage from "./features/employees/pages/EmployeePage";
 import LoanSubmissionPage from "./pages/LoanSubmissionPage";
 import "./App.css";
 

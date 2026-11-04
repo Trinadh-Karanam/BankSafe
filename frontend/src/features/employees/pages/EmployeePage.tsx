@@ -1,48 +1,20 @@
+
 import { useState, useEffect } from "react";
-import "../App.css";
-import type { Employee, EmployeeCardProps } from "./types";
+import "../../../App.css";
 
-function EmployeeCard({ employee, onApprove, onDelete }: EmployeeCardProps) {
-  return (
-    <article className="employee-card">
-      <div>
-        <h3>{employee.name}</h3>
-        <p className="employee-role">{employee.role}</p>
-      </div>
-      <div className="employee-actions">
-        <span className={`status status-${employee.status.toUpperCase()}`}>
-          {employee.status}
-        </span>
-        
-        <button
-          onClick={() => onApprove(employee.id)}
-          disabled={employee.status === "Approved"}
-        >
-          {employee.status === "Pending" ? "Approve" : "Approved"}
-        </button>
-        <button
-          onClick={() => onDelete(employee.id)}
-        >
-        Delete
-        </button>
-      </div>
-    </article>
-  );
-}
+import EmployeeCard from "../components/EmployeeCard";
 
+import type { Employee } from "../types/employee.types";
 
 function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [searchText, setSearchText] = useState<string>("");
+  const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [newName, setNewName] = useState("");
   const [newRole, setNewRole] = useState("");
 
-  useEffect(() => {
-    console.log("Employees page opened");
-  }, []);
-
+  // Fetch employees when the page loads
   useEffect(() => {
     async function fetchEmployees() {
       try {
@@ -54,18 +26,19 @@ function EmployeesPage() {
           throw new Error("Failed to fetch employees");
         }
 
-        const data = await response.json();
-
-        setEmployees(data)
+        const data: Employee[] = await response.json();
+        setEmployees(data);
       } catch {
         setError("Unable to load employees. Check the backend server.");
       } finally {
         setLoading(false);
       }
     }
+
     fetchEmployees();
   }, []);
 
+  // Approve employee
   async function approveEmployee(employeeId: number): Promise<void> {
     try {
       const response = await fetch(
@@ -83,13 +56,11 @@ function EmployeesPage() {
         throw new Error("Failed to approve employee");
       }
 
-      const updatedEmployee = await response.json();
+      const updatedEmployee: Employee = await response.json();
 
       setEmployees((currentEmployees) =>
         currentEmployees.map((employee) =>
-          employee.id === employeeId
-            ? updatedEmployee
-            : employee
+          employee.id === employeeId ? updatedEmployee : employee
         )
       );
 
@@ -99,13 +70,31 @@ function EmployeesPage() {
     }
   }
 
+  // Delete employee
+  async function deleteEmployee(employeeId: number): Promise<void> {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/employees/${employeeId}`,
+        { method: "DELETE" }
+      );
 
+      if (!response.ok) {
+        throw new Error("Failed to delete employee");
+      }
 
-  const filteredEmployees = employees.filter((employee) =>
-    employee.name.toLowerCase().includes(searchText.toLowerCase()) ||
-    employee.role.toLowerCase().includes(searchText.toLocaleLowerCase())
-  );
+      setEmployees((currentEmployees) =>
+        currentEmployees.filter(
+          (employee) => employee.id !== employeeId
+        )
+      );
 
+      setError("");
+    } catch {
+      setError("Unable to delete employee. Please try again.");
+    }
+  }
+
+  // Add employee
   async function addEmployee(
     event: React.FormEvent<HTMLFormElement>
   ): Promise<void> {
@@ -132,12 +121,9 @@ function EmployeesPage() {
         throw new Error("Failed to add employee");
       }
 
-      const createdEmployee = await response.json();
+      const createdEmployee: Employee = await response.json();
 
-      setEmployees((current) => [
-        ...current,
-        { ...createdEmployee, status: "Pending" as const },
-      ]);
+      setEmployees((current) => [...current, createdEmployee]);
 
       setNewName("");
       setNewRole("");
@@ -147,29 +133,12 @@ function EmployeesPage() {
     }
   }
 
-  async function deleteEmployee(employeeId: number): Promise<void> {
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/employees/${employeeId}`,
-        { method: "DELETE" }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete employee");
-      }
-
-      setEmployees((currentEmployees) =>
-        currentEmployees.filter(
-          (employee) => employee.id !== employeeId
-        )
-      );
-
-      setError("");
-    } catch {
-      setError("Unable to delete employee. Please try again.");
-    }
-  }
-
+  // Search employees
+  const filteredEmployees = employees.filter(
+    (employee) =>
+      employee.name.toLowerCase().includes(searchText.toLowerCase()) ||
+      employee.role.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   return (
     <main className="app-shell">
@@ -200,6 +169,7 @@ function EmployeesPage() {
             onChange={(event) => setSearchText(event.target.value)}
           />
         </div>
+
         <form onSubmit={addEmployee} className="employee-form">
           <h2>Add Employee</h2>
 
@@ -222,12 +192,12 @@ function EmployeesPage() {
 
           <button type="submit">Add Employee</button>
         </form>
+
         {loading && <p>Loading employees...</p>}
 
         {error && <p>{error}</p>}
 
         {!loading && !error && (
-
           <div className="employee-list">
             {filteredEmployees.length > 0 ? (
               filteredEmployees.map((employee) => (

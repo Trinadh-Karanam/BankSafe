@@ -5,7 +5,6 @@ export type Employee = {
   status: "Pending" | "Approved";
 };
 
-// 3. Define the props accepted by EmployeeCard
 export type EmployeeCardProps = {
   employee: Employee;
   onApprove: (employeeId: number) => void;
